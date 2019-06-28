@@ -23,8 +23,7 @@ Build and Deploy the Quickstart
 
 There are several ways how to build and run application
  
- the first one:
- -------------
+### the first one:
  1. Set environment variable %MAVEN_HOME and $PATH to $MAVEN_HOME/bin. Also make sure you have set $JAVA_HOME  
  2. Open command line and navigate to the root directory of project
  3. Type this command to build:
@@ -36,8 +35,7 @@ There are several ways how to build and run application
 
  6. Embedded Jetty will be started and will deploy application
  
- the second one:
- --------------
+### the second one:
   1. Set environment variable %MAVEN_HOME and $PATH to $MAVEN_HOME/bin. Also make sure you have set $JAVA_HOME  
   2. Open command line and navigate to the root directory of project
   3. Type this command to build and run:
@@ -53,9 +51,9 @@ Access the application
 
 The application will be running at the following URL: <http://localhost:8080/>
 REST Api will be available at the following URL: <http://localhost:8080/api/*>. 
-####For an instance 
-- <http://localhost:8080/api/account/>
-- <http://localhost:8080/api/transfer-money/1/2/300>
+###For an instance: 
+- <http://localhost:8080/api/account>
+- <http://localhost:8080/api/transfer-money/1/2/30>
 
 ### Available Services
 

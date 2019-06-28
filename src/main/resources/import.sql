@@ -28,3 +28,5 @@ ALTER TABLE transfer_transaction ADD FOREIGN KEY (acc_number_to) REFERENCES acco
 
 INSERT INTO account (acc_number, username, balance ) VALUES (1, 'v.tsapaev', 100.0000);
 INSERT INTO account (acc_number, username, balance ) VALUES (2, 'tssv85', 500.0000);
+INSERT INTO account (acc_number, username, balance ) VALUES (3, 'donaldtrump', 110000.0000);
+INSERT INTO account (acc_number, username, balance ) VALUES (4, 'rambo', 1000.0000);

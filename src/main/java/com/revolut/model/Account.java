@@ -16,11 +16,30 @@ public final class Account {
 
     private BigDecimal balance;
 
+    public Account() {
+
+    }
+
     public Account(long number, String username, BigDecimal balance) {
         this.number = number;
         this.username = username;
         this.balance = balance;
         lock = AccountLockUtil.getLockForAccount(number);
+    }
+
+    public void setNumber(long number) {
+        if (lock == null) {
+            lock = AccountLockUtil.getLockForAccount(number);
+        }
+        this.number = number;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
     }
 
     public Long getNumber() {
@@ -34,6 +53,8 @@ public final class Account {
     public BigDecimal getBalance() {
         return balance;
     }
+
+
 
     public Object getLock() {
         return lock;
