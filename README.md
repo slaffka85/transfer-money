@@ -23,7 +23,8 @@ Build and Deploy the Quickstart
 
 There are several ways how to build and run application
  
- ####the first one:
+ the first one:
+ -------------
  1. Set environment variable %MAVEN_HOME and $PATH to $MAVEN_HOME/bin. Also make sure you have set $JAVA_HOME  
  2. Open command line and navigate to the root directory of project
  3. Type this command to build:
@@ -35,7 +36,8 @@ There are several ways how to build and run application
 
  6. Embedded Jetty will be started and will deploy application
  
- ####the second one:
+ the second one:
+ --------------
   1. Set environment variable %MAVEN_HOME and $PATH to $MAVEN_HOME/bin. Also make sure you have set $JAVA_HOME  
   2. Open command line and navigate to the root directory of project
   3. Type this command to build and run:
