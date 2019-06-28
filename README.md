@@ -51,7 +51,7 @@ Access the application
 
 The application will be running at the following URL: <http://localhost:8080/>
 REST Api will be available at the following URL: <http://localhost:8080/api/*>. 
-###For an instance: 
+### For an instance: 
 - <http://localhost:8080/api/account>
 - <http://localhost:8080/api/transfer-money/1/2/30>
 
