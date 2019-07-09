@@ -10,14 +10,11 @@ import javax.ws.rs.ext.Provider;
 
 
 @Provider
-public class ControllerExceptionMapper implements ExceptionMapper<Exception> {
+public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException> {
 
-	private static Logger log = LogManager.getLogger(ControllerExceptionMapper.class);
+	private static Logger log = LogManager.getLogger(RuntimeExceptionMapper.class);
 
-	public ControllerExceptionMapper() {
-	}
-
-	public Response toResponse(Exception exception) {
+	public Response toResponse(RuntimeException exception) {
 		if (log.isDebugEnabled()) {
 			log.debug("Mapping exception to Response....");
 		}

@@ -1,7 +1,7 @@
 package com.revolut.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * model of transfer transaction
@@ -22,7 +22,7 @@ public class TransactionHistory {
 
     private BigDecimal amount;
 
-    private LocalDateTime date;
+    private Date date;
 
     public TransactionHistory() {
     }
@@ -35,7 +35,7 @@ public class TransactionHistory {
             BigDecimal balanceBeforeTo,
             BigDecimal balanceAfterTo,
             BigDecimal amount,
-            LocalDateTime date
+            Date date
     ) {
         this.accNumberFrom = accNumberFrom;
         this.balanceBeforeFrom = balanceBeforeFrom;
@@ -104,11 +104,11 @@ public class TransactionHistory {
         this.amount = amount;
     }
 
-    public LocalDateTime getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

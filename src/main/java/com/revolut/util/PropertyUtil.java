@@ -14,7 +14,7 @@ public class PropertyUtil {
 
     private static Properties properties = new Properties();
 
-    private final static String configFileName = "application.properties";
+    private static final String configFileName = "application.properties";
 
     private PropertyUtil() {
         //preventing instance creation
@@ -26,7 +26,9 @@ public class PropertyUtil {
 
     private static void initConfig() {
         try {
-            log.info(String.format("Initializing config file: %s", configFileName));
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Initializing config file: %s", configFileName));
+            }
             final InputStream fis = Thread.currentThread().getContextClassLoader().getResourceAsStream(configFileName);
             properties.load(fis);
         } catch (FileNotFoundException fne) {
@@ -47,10 +49,11 @@ public class PropertyUtil {
     public static int getProperty(String key, Integer defaultValue) {
         String value = getProperty(key, defaultValue.toString());
         try {
-            int intValue = Integer.parseInt(value);
-            return intValue;
+            return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            log.debug(String.format("cannot convert value %s into int", value));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("cannot convert value %s into int", value));
+            }
             return defaultValue;
         }
     }

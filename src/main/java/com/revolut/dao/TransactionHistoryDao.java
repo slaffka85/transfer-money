@@ -1,6 +1,5 @@
 package com.revolut.dao;
 
-import com.revolut.model.Account;
 import com.revolut.model.TransactionHistory;
 
 import java.util.List;

@@ -2,6 +2,7 @@ package com.revolut.controller;
 
 import com.revolut.dao.AccountDao;
 import com.revolut.dao.DaoFactory;
+import com.revolut.exception.AccountAlreadyExistsException;
 import com.revolut.exception.AccountNotFoundException;
 import com.revolut.model.Account;
 
@@ -27,9 +28,21 @@ public class AccountController {
         return accountDao.findAll();
     }
 
+    /**
+     * Method creates account
+     * @param account is account
+     * @return created {@link Account}
+     */
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Account save(Account account) {
+        if (account.getNumber() <= 0) {
+            throw new IllegalArgumentException("it's impossible to save account because number must be positive value");
+        }
+        accountDao.findByNumber(account.getNumber()).ifPresent(acc -> {
+            throw new AccountAlreadyExistsException(acc.getNumber());
+        });
+
         return accountDao.save(account);
     }
 
@@ -39,7 +52,7 @@ public class AccountController {
      * @return List&lt;{@link Account}>
      */
     @GET
-    @Path("/{accNumber}")
+    @Path("/acc-number/{accNumber}")
     public Account findByAccNumber(@PathParam("accNumber") long accNumber) {
         return accountDao.findByNumber(accNumber).orElseThrow(() -> new AccountNotFoundException(accNumber));
     }

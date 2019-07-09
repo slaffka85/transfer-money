@@ -4,11 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.revolut.util.AccountLockUtil;
 
 import java.math.BigDecimal;
+import java.util.concurrent.locks.Lock;
 
+/**
+ * model of user account
+ */
 public final class Account {
 
     @JsonIgnore
-    private Object lock;
+    private Lock lock;
 
     private long number;
 
@@ -42,7 +46,7 @@ public final class Account {
         this.balance = balance;
     }
 
-    public Long getNumber() {
+    public long getNumber() {
         return number;
     }
 
@@ -54,9 +58,7 @@ public final class Account {
         return balance;
     }
 
-
-
-    public Object getLock() {
+    public Lock getLock() {
         return lock;
     }
 

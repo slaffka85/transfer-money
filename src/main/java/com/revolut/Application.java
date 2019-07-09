@@ -1,10 +1,11 @@
 package com.revolut;
 
 import com.revolut.controller.AccountController;
-import com.revolut.controller.TransferMoneyController;
+import com.revolut.controller.TransferMoneyLockController;
+import com.revolut.controller.TransferMoneySyncController;
 import com.revolut.dao.DaoFactory;
-import com.revolut.dao.JdbcH2DaoFactory;
-import com.revolut.service.ControllerExceptionMapper;
+import com.revolut.service.JdbcExceptionMapper;
+import com.revolut.service.RuntimeExceptionMapper;
 import com.revolut.util.PropertyUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,8 +39,10 @@ public class Application {
         server.setHandler(context);
         ServletHolder servletHolder = context.addServlet(ServletContainer.class, "/api/*");
         String controllers = AccountController.class.getCanonicalName() + "," +
-                TransferMoneyController.class.getCanonicalName() + "," +
-                ControllerExceptionMapper.class.getCanonicalName();
+                TransferMoneySyncController.class.getCanonicalName() + "," +
+                TransferMoneyLockController.class.getCanonicalName() + "," +
+                JdbcExceptionMapper.class.getCanonicalName() + "," +
+                RuntimeExceptionMapper.class.getCanonicalName();
         servletHolder.setInitParameter(JERSEY_CONFIG_SERVER_PROVIDER_CLASSNAMES, controllers) ;
         try {
             server.start();

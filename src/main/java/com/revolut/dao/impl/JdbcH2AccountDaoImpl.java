@@ -1,6 +1,7 @@
 package com.revolut.dao.impl;
 
 import com.revolut.dao.AccountDao;
+import com.revolut.exception.JdbcException;
 import com.revolut.model.Account;
 import com.revolut.util.DbUtil;
 import com.revolut.util.StringUtil;
@@ -18,6 +19,18 @@ import java.util.Optional;
  */
 public class JdbcH2AccountDaoImpl implements AccountDao {
 
+    private static final String ACCOUNT_WITH_NUMBER = "account with number";
+    private static final String SAVE_EXCEPTION_MESSAGE = ACCOUNT_WITH_NUMBER + " %d hasn't been saved";
+    private static final String SAVE_SUCCESS_MESSAGE = ACCOUNT_WITH_NUMBER + " %d has been saved to db";
+    private static final String ACC_NUMBER_FIELD = "acc_number";
+    private static final String USERNAME_FIELD = "username";
+    private static final String BALANCE_FIELD = "balance";
+
+    private static final String SQL_SAVE_ACCOUNT = "insert into account (acc_number, username, balance) values (?, ?, ?)";
+    private static final String SQL_FIND_ALL = "select acc_number, username, balance from account ";
+    private static final String SQL_FIND_ACCOUNT_BY_NUMBER = "select acc_number, username, balance from account where acc_number = ? ";
+    private static final String SQL_FIND_ACCOUNTS_BY_USERNAME = "select acc_number, username, balance from account where USERNAME = ? ";
+    private static final String SQL_UPDATE_ACCOUNT = "update account set balance = ? where acc_number = ?";
     private static Logger log = LogManager.getLogger(JdbcH2AccountDaoImpl.class.getName());
 
     private final JdbcConnectionPool jdbcConnectionPool;
@@ -29,23 +42,25 @@ public class JdbcH2AccountDaoImpl implements AccountDao {
     /**
      * Method saves user accounts {@link Account}into DB
      * @param account are user accounts
+     * @return account if account has been saved
      */
     @Override
     public Account save(Account account) {
         try (Connection connection = jdbcConnectionPool.getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement("insert into account (acc_number, username, balance) values (?, ?, ?)");
+            PreparedStatement stmt = connection.prepareStatement(SQL_SAVE_ACCOUNT);
             stmt.setLong(1, account.getNumber());
             stmt.setString(2, account.getUsername());
             stmt.setBigDecimal(3, account.getBalance());
             stmt.executeUpdate();
             connection.commit();
             if (log.isDebugEnabled()) {
-                log.debug("account with number " + account.getNumber() + " has been saved to db");
+                log.debug(String.format(SAVE_SUCCESS_MESSAGE, account.getNumber()));
             }
+            return account;
         } catch (SQLException e){
-            log.warn("account with number " + account.getNumber() + " hasn't been saved", e);
+            String message = String.format(SAVE_EXCEPTION_MESSAGE, account.getNumber());
+            throw new JdbcException(message, e);
         }
-        return account;
     }
 
 
@@ -58,17 +73,18 @@ public class JdbcH2AccountDaoImpl implements AccountDao {
         List<Account> accountList = new ArrayList<>();
         try (Connection connection = jdbcConnectionPool.getConnection()) {
             Statement stmt = connection.createStatement();
-            ResultSet resultSet = stmt.executeQuery("select acc_number, username, balance from account ");
+            ResultSet resultSet = stmt.executeQuery(SQL_FIND_ALL);
             while (resultSet.next()) {
                 Account account = new Account(
-                        resultSet.getLong("acc_number"),
-                        resultSet.getString("username"),
-                        resultSet.getBigDecimal("balance")
+                        resultSet.getLong(ACC_NUMBER_FIELD),
+                        resultSet.getString(USERNAME_FIELD),
+                        resultSet.getBigDecimal(BALANCE_FIELD)
                 );
                 accountList.add(account);
             }
         } catch (SQLException e){
-            log.debug("accounts haven't been found ", e);
+            String message = "accounts haven't been found";
+            throw new JdbcException(message, e);
         }
         return accountList;
     }
@@ -82,18 +98,19 @@ public class JdbcH2AccountDaoImpl implements AccountDao {
     public Optional<Account> findByNumber(long number) {
         Account account = null;
         try (Connection connection = jdbcConnectionPool.getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement("select acc_number, username, balance from account where acc_number = ? ");
+            PreparedStatement stmt = connection.prepareStatement(SQL_FIND_ACCOUNT_BY_NUMBER);
             stmt.setLong(1, number);
             ResultSet resultSet = stmt.executeQuery();
             if (resultSet.next()) {
                 account = new Account(
-                        resultSet.getLong("acc_number"),
-                        resultSet.getString("username"),
-                        resultSet.getBigDecimal("balance")
+                        resultSet.getLong(ACC_NUMBER_FIELD),
+                        resultSet.getString(USERNAME_FIELD),
+                        resultSet.getBigDecimal(BALANCE_FIELD)
                 );
             }
         } catch (SQLException e){
-            log.debug(String.format("account with number %d hasn't been found", number), e);
+            String message = String.format(ACCOUNT_WITH_NUMBER + " %d hasn't been found", number);
+            throw new JdbcException(message, e);
         }
         return Optional.ofNullable(account);
     }
@@ -107,19 +124,20 @@ public class JdbcH2AccountDaoImpl implements AccountDao {
     public List<Account> findByUsername(String username) {
         List<Account> accounts = new ArrayList<>();
         try (Connection connection = jdbcConnectionPool.getConnection()) {
-            PreparedStatement stmt = connection.prepareStatement("select acc_number, username, balance from account where USERNAME = ? ");
+            PreparedStatement stmt = connection.prepareStatement(SQL_FIND_ACCOUNTS_BY_USERNAME);
             stmt.setString(1, username);
             ResultSet resultSet = stmt.executeQuery();
             while(resultSet.next()) {
                 Account account = new Account(
-                        resultSet.getLong("acc_number"),
-                        resultSet.getString("username"),
-                        resultSet.getBigDecimal("balance")
+                        resultSet.getLong(ACC_NUMBER_FIELD),
+                        resultSet.getString(USERNAME_FIELD),
+                        resultSet.getBigDecimal(BALANCE_FIELD)
                 );
                 accounts.add(account);
             }
         } catch (SQLException e){
-            log.debug(String.format("account for user %s hasn't been found", username), e);
+            String message = String.format("account for user %s hasn't been found", username);
+            throw new JdbcException(message, e);
         }
         return accounts;
     }
@@ -134,7 +152,7 @@ public class JdbcH2AccountDaoImpl implements AccountDao {
         try {
             connection = jdbcConnectionPool.getConnection();
             connection.setAutoCommit(false);
-            PreparedStatement stmt = connection.prepareStatement("update account set balance = ? where acc_number = ?");
+            PreparedStatement stmt = connection.prepareStatement(SQL_UPDATE_ACCOUNT);
             StringBuilder builder = new StringBuilder();
             for (Account account: accounts) {
                 builder.append(account.getNumber()).append(", ");
@@ -146,11 +164,12 @@ public class JdbcH2AccountDaoImpl implements AccountDao {
             StringUtil.deleteLastCharacters(builder, ", ");
             connection.commit();
             if (log.isDebugEnabled()) {
-                log.debug("account with number " + builder.toString() + " has been updated");
+                log.debug(ACCOUNT_WITH_NUMBER + " " + builder.toString() + " has been updated");
             }
         } catch (SQLException e){
             DbUtil.rollbackQuietly(connection);
-            log.warn("accounts haven't been updated ", e);
+            String message = "accounts haven't been updated.";
+            throw new JdbcException(message, e);
         } finally {
             DbUtil.setAutoCommitTrueAndCloseQuietly(connection);
         }

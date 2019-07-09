@@ -1,10 +1,11 @@
-package com.revolut.service;
+package com.revolut.rest;
 
 import com.revolut.controller.AccountController;
-import com.revolut.controller.TransferMoneyController;
-import com.revolut.dao.AccountDao;
-import com.revolut.dao.DaoFactory;
-import com.revolut.model.Account;
+import com.revolut.controller.TransactionHistoryController;
+import com.revolut.controller.TransferMoneyLockController;
+import com.revolut.controller.TransferMoneySyncController;
+import com.revolut.service.JdbcExceptionMapper;
+import com.revolut.service.RuntimeExceptionMapper;
 import com.revolut.util.PropertyUtil;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.utils.URIBuilder;
@@ -18,12 +19,9 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.junit.BeforeClass;
 
-import java.math.BigDecimal;
-import java.util.Random;
-
 import static org.eclipse.jetty.servlet.ServletContextHandler.NO_SESSIONS;
 
-public abstract class StartUpService {
+public abstract class IntTest {
     private static final int DEFAULT_PORT = 8081;
     private static final String SERVER_PORT_KEY = "server.port";
     private static final String CONTEXT_PATH = "/";
@@ -34,37 +32,18 @@ public abstract class StartUpService {
 
     protected static HttpClient client = null;
     protected static URIBuilder builder = new URIBuilder();
-    protected static Logger logger = LogManager.getLogger(StartUpService.class.getSimpleName());
-    protected static AccountDao accountDAO = DaoFactory.getInstance().getAccountDao();
-    protected static final int COUNT_OF_ACCOUNTS = 10;
-    protected static Random random = new Random();
+    protected static Logger logger = LogManager.getLogger(IntTest.class.getSimpleName());
     private static Server server;
 
 
     @BeforeClass
     public static void setup() throws Exception {
-        initDB();
         startJetty();
         initClient();
+        //initDB();
     }
 
-    private static void initDB() {
-        DaoFactory.getInstance().initDb();
-        createAccounts();
-    }
 
-    private static void createAccounts() {
-        accountDAO = DaoFactory.getInstance().getAccountDao();
-        logger.debug(String.format("creation accounts with number 1..%d", COUNT_OF_ACCOUNTS));
-
-        for (int i = 1; i <= COUNT_OF_ACCOUNTS; i++) {
-            BigDecimal balance = new BigDecimal(20000 + random.nextInt(50000));
-            String username = String.format("test%d", i);
-            Account account = new Account(i, username, balance);
-            accountDAO.save(account);
-        }
-        logger.debug(String.format("creation accounts with number 1..%d completed", COUNT_OF_ACCOUNTS));
-    }
 
     private static void initClient() {
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
@@ -88,8 +67,11 @@ public abstract class StartUpService {
             server.setHandler(context);
             ServletHolder servletHolder = context.addServlet(ServletContainer.class, "/api/*");
             String controllers = AccountController.class.getCanonicalName() + "," +
-                    TransferMoneyController.class.getCanonicalName() + "," +
-                    ControllerExceptionMapper.class.getCanonicalName();
+                    TransferMoneySyncController.class.getCanonicalName() + "," +
+                    TransferMoneyLockController.class.getCanonicalName() + "," +
+                    TransactionHistoryController.class.getCanonicalName() + "," +
+                    JdbcExceptionMapper.class.getCanonicalName() + "," +
+                    RuntimeExceptionMapper.class.getCanonicalName();
             servletHolder.setInitParameter(JERSEY_CONFIG_SERVER_PROVIDER_CLASSNAMES, controllers);
             server.start();
         }

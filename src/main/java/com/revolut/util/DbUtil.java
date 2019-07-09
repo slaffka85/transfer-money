@@ -1,5 +1,8 @@
 package com.revolut.util;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -7,6 +10,8 @@ import java.sql.SQLException;
  * Util helps working with DB
  */
 public class DbUtil {
+
+    private static Logger logger = LogManager.getLogger(DbUtil.class.getName());
 
     private DbUtil() {
         //preventing instance creation
@@ -22,7 +27,7 @@ public class DbUtil {
                 connection.setAutoCommit(true);
                 connection.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                logger.error("it's impossible to set auto commit true and close connection", e);
             }
         }
     }
@@ -36,7 +41,7 @@ public class DbUtil {
             try {
                 connection.rollback();
             } catch (SQLException ex) {
-                ex.printStackTrace();
+                logger.error("it's impossible to rollback transaction", ex);
             }
         }
     }

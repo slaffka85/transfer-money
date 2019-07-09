@@ -31,6 +31,8 @@
     <exec.plugin.version>1.6.0</exec.plugin.version>
     <dependency.plugin.version>3.1.1</dependency.plugin.version>
     <mainClass>com.revolut.Application</mainClass>
+    <sonar.version>3.4.0.905</sonar.version>
+    <sonar.host.url>http://192.168.99.100:9000</sonar.host.url>
   </properties>
 
   <dependencies>
@@ -110,6 +112,24 @@
       <version>${httpclient.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-parameter-names</artifactId>
+      <version>${jackson.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jdk8</artifactId>
+      <version>${jackson.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <version>${jackson.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -170,6 +190,11 @@
         <configuration>
           <mainClass>${mainClass}</mainClass>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>${sonar.version}</version>
       </plugin>
     </plugins>
   </build>

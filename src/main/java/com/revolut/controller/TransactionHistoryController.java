@@ -2,7 +2,6 @@ package com.revolut.controller;
 
 import com.revolut.dao.DaoFactory;
 import com.revolut.dao.TransactionHistoryDao;
-import com.revolut.model.Account;
 import com.revolut.model.TransactionHistory;
 
 import javax.ws.rs.GET;

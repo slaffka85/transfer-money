@@ -51,7 +51,9 @@ Access the application
 
 The application will be running at the following URL: <http://localhost:8080/>
 REST Api will be available at the following URL: <http://localhost:8080/api/*>. 
+
 ### For an instance: 
+
 - <http://localhost:8080/api/account>
 - <http://localhost:8080/api/transfer-money/1/2/30>
 
@@ -61,7 +63,8 @@ REST Api will be available at the following URL: <http://localhost:8080/api/*>.
 | -----------| ------ | ------ |
 | GET | /account | get all users | 
 | POST | /account | create a new account | 
-| GET | /account/{accNumber} | get account by account number | 
+| GET | /account/acc-number/{accNumber} | get account by account number | 
 | GET | /account/username/{username} | get accounts by username |
-| POST | /transfer-money/{accNumberFrom}/{accNumberTo}/{amount} | transfer money from one account to another
+| POST | /transfer-money-sync/{accNumberFrom}/{accNumberTo}/{amount} | transfer money from one account to another
+| POST | /transfer-money-lock/{accNumberFrom}/{accNumberTo}/{amount} | transfer money from one account to another
 | GET | /transaction-history | find all transactions  

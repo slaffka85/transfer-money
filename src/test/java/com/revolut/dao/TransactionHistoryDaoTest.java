@@ -2,7 +2,7 @@ package com.revolut.dao;
 
 import com.revolut.model.Account;
 import com.revolut.model.TransactionHistory;
-import com.revolut.service.TransferService;
+import com.revolut.service.impl.TransferServiceSyncImpl;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,16 +10,16 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class TestTransactionHistoryDao {
+public class TransactionHistoryDaoTest {
 
-    private static TransferService transferService;
+    private static TransferServiceSyncImpl transferServiceSyncImpl;
     private static AccountDao accountDAO;
     private static TransactionHistoryDao transactionHistoryDao;
 
     @BeforeClass
     public static void setup() {
         DaoFactory.getInstance().initDb();
-        transferService = new TransferService();
+        transferServiceSyncImpl = new TransferServiceSyncImpl();
         accountDAO = DaoFactory.getInstance().getAccountDao();
         transactionHistoryDao = DaoFactory.getInstance().getTransactionHistoryDao();
 
@@ -33,7 +33,7 @@ public class TestTransactionHistoryDao {
     public void testFindAllTransactionHistory() {
         List<TransactionHistory> transactionHistoryList = transactionHistoryDao.findAll();
         Assert.assertEquals(0, transactionHistoryList.size());
-        transferService.transferMoney(1, 2, new BigDecimal(3));
+        transferServiceSyncImpl.transferMoney(1, 2, new BigDecimal(3));
 
         transactionHistoryList = transactionHistoryDao.findAll();
         Assert.assertEquals(1, transactionHistoryList.size());

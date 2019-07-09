@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.h2.jdbcx.JdbcConnectionPool;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +15,14 @@ import java.util.List;
  */
 public class JdbcH2TransactionHistoryDaoImpl implements TransactionHistoryDao {
 
+    private static final String ACC_NUMBER_FROM_FIELD = "acc_number_from";
+    private static final String BALANCE_BEFORE_FROM_FIELD = "balance_before_from";
+    private static final String BALANCE_AFTER_FROM_FIELD = "balance_after_from";
+    private static final String ACC_NUMBER_TO_FIELD = "acc_number_to";
+    private static final String BALANCE_BEFORE_TO_FIELD = "balance_before_to";
+    private static final String BALANCE_AFTER_TO_FIELD = "balance_after_to";
+    private static final String AMOUNT_FIELD = "amount";
+    private static final String TRANSACTION_DATE_FIELD = "transaction_date";
     private static Logger log = LogManager.getLogger(JdbcH2TransactionHistoryDaoImpl.class.getName());
 
     private final JdbcConnectionPool jdbcConnectionPool;
@@ -74,16 +81,16 @@ public class JdbcH2TransactionHistoryDaoImpl implements TransactionHistoryDao {
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 TransactionHistory transactionHistory = new TransactionHistory();
-                transactionHistory.setAccNumberFrom(rs.getLong("acc_number_from"));
-                transactionHistory.setBalanceBeforeFrom(rs.getBigDecimal("balance_before_from"));
-                transactionHistory.setBalanceAfterFrom(rs.getBigDecimal("balance_after_from"));
+                transactionHistory.setAccNumberFrom(rs.getLong(ACC_NUMBER_FROM_FIELD));
+                transactionHistory.setBalanceBeforeFrom(rs.getBigDecimal(BALANCE_BEFORE_FROM_FIELD));
+                transactionHistory.setBalanceAfterFrom(rs.getBigDecimal(BALANCE_AFTER_FROM_FIELD));
 
-                transactionHistory.setAccNumberTo(rs.getLong("acc_number_to"));
-                transactionHistory.setBalanceBeforeTo(rs.getBigDecimal("balance_before_to"));
-                transactionHistory.setBalanceAfterTo(rs.getBigDecimal("balance_after_to"));
+                transactionHistory.setAccNumberTo(rs.getLong(ACC_NUMBER_TO_FIELD));
+                transactionHistory.setBalanceBeforeTo(rs.getBigDecimal(BALANCE_BEFORE_TO_FIELD));
+                transactionHistory.setBalanceAfterTo(rs.getBigDecimal(BALANCE_AFTER_TO_FIELD));
 
-                transactionHistory.setAmount(rs.getBigDecimal("amount"));
-                transactionHistory.setDate(rs.getTimestamp("transaction_date").toLocalDateTime());
+                transactionHistory.setAmount(rs.getBigDecimal(AMOUNT_FIELD));
+                transactionHistory.setDate(rs.getTimestamp(TRANSACTION_DATE_FIELD));
 
                 transactionHistories.add(transactionHistory);
             }

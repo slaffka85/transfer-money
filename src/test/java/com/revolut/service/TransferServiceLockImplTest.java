@@ -4,6 +4,7 @@ import com.revolut.dao.AccountDao;
 import com.revolut.dao.DaoFactory;
 import com.revolut.exception.NotEnoughMoneyException;
 import com.revolut.model.Account;
+import com.revolut.service.impl.TransferServiceLockImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Assert;
@@ -12,16 +13,16 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
-public class TestTransferService {
+public class TransferServiceLockImplTest {
 
-    private static Logger logger = LogManager.getLogger(TestTransferService.class);
+    private static Logger logger = LogManager.getLogger(TransferServiceLockImplTest.class);
     private static TransferService transferService;
     private static AccountDao accountDAO;
 
     @BeforeClass
     public static void setup() {
         DaoFactory.getInstance().initDb();
-        transferService = new TransferService();
+        transferService = new TransferServiceLockImpl();
         accountDAO = DaoFactory.getInstance().getAccountDao();
 
         Account account1 = new Account(3, "test1", new BigDecimal(100));

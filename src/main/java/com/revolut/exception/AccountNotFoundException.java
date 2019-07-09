@@ -7,4 +7,5 @@ public class AccountNotFoundException extends RuntimeException {
     public AccountNotFoundException(long accNumber) {
         super(String.format(ACCOUNT_NOT_FOUND_MESSAGE, accNumber));
     }
+
 }

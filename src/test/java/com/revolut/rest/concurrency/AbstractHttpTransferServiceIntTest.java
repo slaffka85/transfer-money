@@ -1,31 +1,53 @@
-package com.revolut.service;
+package com.revolut.rest.concurrency;
 
-import com.revolut.helper.HttpProcessTransfer;
+import com.revolut.dao.AccountDao;
+import com.revolut.dao.DaoFactory;
+import com.revolut.helper.AbstractHttpProcessTransfer;
 import com.revolut.model.Account;
+import com.revolut.rest.IntTest;
 import org.apache.http.HttpResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.utils.URIBuilder;
 import org.junit.Assert;
-import org.junit.Test;
 
 import javax.ws.rs.core.Response;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.*;
 
-public class ConcurrencyTransferServiceIntTest extends StartUpService {
+public class AbstractHttpTransferServiceIntTest<T> extends IntTest {
+    protected static final int THREAD_COUNT = 100;
+    protected static final int MILLIS_IN_NANO = 1000000;
+    protected static final int COUNT_OF_ACCOUNTS = 10;
+    protected static AccountDao accountDao = DaoFactory.getInstance().getAccountDao();
+    protected static Random random = new Random();
 
-    private static final int THREAD_COUNT = 100;
-    private static final int MILLIS_IN_NANO = 1000000;
-    private static Logger logger = LogManager.getLogger(ConcurrencyTransferServiceIntTest.class.getName());
 
-    @Test
-    public void testTransferService() throws Exception {
-        BigDecimal sumBefore = accountDAO.findAll()
-                .stream()
-                .map(Account::getBalance)
-                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    protected static void initDB() {
+        DaoFactory.getInstance().initDb();
+        createAccounts();
+    }
+
+    private static void createAccounts() {
+        logger.debug(String.format("creation accounts with number 1..%d", 10));
+
+        for (int i = 1; i <= 10; i++) {
+            BigDecimal balance = new BigDecimal(20000 + new Random().nextInt(50000));
+            String username = String.format("test%d", i);
+            Account account = new Account(i, username, balance);
+            DaoFactory.getInstance().getAccountDao().save(account);
+        }
+        logger.debug(String.format("creation accounts with number 1..%d completed", 10));
+    }
+
+
+
+    public void testTransferMoney() throws Exception {
+        BigDecimal sumBefore = getSumOfAccount();
         int firstAccountNumber = 1;
         List<Callable<HttpResponse>> processes = new ArrayList<>(THREAD_COUNT);
         for (int i = 0; i < THREAD_COUNT; i++) {
@@ -35,7 +57,7 @@ public class ConcurrencyTransferServiceIntTest extends StartUpService {
                 accNumberTo = firstAccountNumber + random.nextInt(COUNT_OF_ACCOUNTS);
             }
             BigDecimal amount = new BigDecimal(random.nextInt(10) + 1);
-            HttpProcessTransfer processTransfer = new HttpProcessTransfer(client, builder, accNumberFrom, accNumberTo, amount);
+            AbstractHttpProcessTransfer processTransfer = getProcessTransfer(accNumberFrom, accNumberTo, amount);
             processes.add(processTransfer);
         }
 
@@ -55,27 +77,27 @@ public class ConcurrencyTransferServiceIntTest extends StartUpService {
             }
         });
 
-        BigDecimal sumAfter = accountDAO.findAll()
-                .stream()
-                .map(Account::getBalance)
-                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-
+        BigDecimal sumAfter = getSumOfAccount();
         Assert.assertEquals(0, sumBefore.compareTo(sumAfter));
     }
 
-    @Test
-    public void testTransferMoneyWithSomeErrors() throws Exception {
-        BigDecimal sumBefore = accountDAO.findAll()
+    private BigDecimal getSumOfAccount() {
+        return accountDao.findAll()
                 .stream()
                 .map(Account::getBalance)
                 .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+    }
+
+    public void testTransferMoneyWithSomeErrors() throws Exception {
+
+        BigDecimal sumBefore = getSumOfAccount();
         int firstAccountNumber = 1;
         List<Callable<HttpResponse>> processes = new ArrayList<>(THREAD_COUNT);
         for (int i = 0; i < THREAD_COUNT; i++) {
             long accNumberFrom = firstAccountNumber + random.nextInt(COUNT_OF_ACCOUNTS + 1);
             long accNumberTo = firstAccountNumber + random.nextInt(COUNT_OF_ACCOUNTS + 1);
             BigDecimal amount = new BigDecimal(random.nextInt(100));
-            HttpProcessTransfer processTransfer = new HttpProcessTransfer(client, builder, accNumberFrom, accNumberTo, amount);
+            AbstractHttpProcessTransfer processTransfer = getProcessTransfer(accNumberFrom, accNumberTo, amount);
             processes.add(processTransfer);
         }
 
@@ -94,11 +116,15 @@ public class ConcurrencyTransferServiceIntTest extends StartUpService {
             }
         });
 
-        BigDecimal sumAfter = accountDAO.findAll()
-                .stream()
-                .map(Account::getBalance)
-                .reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        BigDecimal sumAfter = getSumOfAccount();
 
         Assert.assertEquals(0, sumBefore.compareTo(sumAfter));
+    }
+
+    private AbstractHttpProcessTransfer getProcessTransfer(long accNumberFrom, long accNumberTo, BigDecimal amount) throws InstantiationException, IllegalAccessException, java.lang.reflect.InvocationTargetException, NoSuchMethodException {
+        Class<T> tClass = (Class<T>) ((ParameterizedType) this.getClass()
+                .getGenericSuperclass()).getActualTypeArguments()[0];
+        Constructor constructor = tClass.getDeclaredConstructor(HttpClient.class, URIBuilder.class, Long.class, Long.class, BigDecimal.class);
+        return (AbstractHttpProcessTransfer) constructor.newInstance(client, builder, accNumberTo, accNumberFrom, amount);
     }
 }
