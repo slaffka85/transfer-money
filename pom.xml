@@ -25,7 +25,7 @@
     <jaxb.version>2.2.11</jaxb.version>
     <activation.version>1.1.1</activation.version>
     <junit.version>4.11</junit.version>
-    <httpclient.version>4.5.9</httpclient.version>
+    <httpclient.version>4.5.13</httpclient.version>
     <compiler.plugin.version>3.8.1</compiler.plugin.version>
     <jar.plugin.version>3.1.2</jar.plugin.version>
     <exec.plugin.version>1.6.0</exec.plugin.version>
