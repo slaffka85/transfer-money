@@ -16,7 +16,7 @@
     <maven.compiler.source>1.11</maven.compiler.source>
     <maven.compiler.target>1.11</maven.compiler.target>
 
-    <jetty.version>9.2.3.v20140905</jetty.version>
+    <jetty.version>9.4.41.v20210516</jetty.version>
     <log4j2.version>2.11.2</log4j2.version>
     <h2.version>1.4.196</h2.version>
     <jersey.version>2.7</jersey.version>
